@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'daemons'
+
+LOKII_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+LOKII_ENV = ENV['LOKII_ENV'] || 'development'
+
+if File.exist?(File.join(LOKII_ROOT, 'lib', 'lokii.rb'))
+  $:.unshift(File.join(LOKII_ROOT, 'lib'))
+end
+
+require 'lokii'
+
+trap "SIGINT" do
+  Lokii::Logger.debug "Interuppted"
+  exit
+end
+
+begin
+  require 'process'
+ensure
+  Lokii::Server.teardown
+end
