@@ -121,7 +121,7 @@ banking, commerce applications.
 h3. Thanks
 
 Thanks to Darcy Laycock (sutto) as much of this is based on his work on Marvin.
-Thanks also to the gnokii guys Daniele Forsi (dforsi) and Paweł Kot (oftokpik).
+Thanks also to the gnokii folks Daniele Forsi (dforsi) and Paweł Kot (oftokpik).
 Thanks to Josh Nesbit and Ken Banks for their SMS work in Malawi.
 
 
