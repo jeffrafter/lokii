@@ -35,7 +35,21 @@ module Lokii
       # TODO include not_before and not_after
       Outbox.create(:text => text, :number => number)
     end
+    
+    def self.complete(message)
+      Lokii::Logger.debug "Message processing complete"
+      message.processed = 1
+      message.save!
+    end    
   
+    def self.check
+      Lokii::Logger.debug "Checking for incoming messages" if Lokii::Config.verbose
+      messages = Inbox.find(:all, :conditions => "processed = 0")
+      messages.each {|message|
+        self.handle(message)    
+      }      
+    end
+    
   private
     def self.setup_database
       ActiveRecord::Base.establish_connection(Lokii::Config.database[Lokii::Config.environment])
@@ -44,15 +58,7 @@ module Lokii
       MultipartInbox.establish_connection(Lokii::Config.smsd[Lokii::Config.environment])    
     end   
     
-    def self.setup_handlers
-    end
-    
-    def self.check
-      Lokii::Logger.debug "Checking for incoming messages" if Lokii::Config.verbose
-      messages = Inbox.find(:all, :conditions => "processed = 0")
-      messages.each {|message|
-        self.handle(message)    
-      }      
+    def self.setup_handlers      
     end
     
     def self.handle(message)
@@ -68,10 +74,5 @@ module Lokii
       self.complete(message) unless message.processed?
     end
     
-    def self.complete(message)
-      Lokii::Logger.debug "Message processing complete"
-      message.processed = 1
-      message.save!
-    end
   end
 end

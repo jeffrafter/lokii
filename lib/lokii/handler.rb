@@ -19,9 +19,7 @@ module Lokii
     end
     
     def complete
-      Lokii::Logger.debug "Message processing complete"
-      message.processed = 1
-      message.save!
+      Lokii::Server.complete(message)
     end
 
     def reply(text)
