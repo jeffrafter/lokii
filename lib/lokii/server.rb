@@ -1,39 +1,77 @@
 module Lokii
   class Server
-    cattr_accessor :stopped, :started, :ready
-      
+    cattr_accessor :stopped, :ready, :handlers          
+          
     def self.setup
-#      self.started = false
-#      self.stopped = false
-#      self.ready = false
-      File.open(File.join(Lokii::Config.root, Lokii::Config.pid), "w") 
+      self.ready = true
       Lokii::Logger.debug ""
       Lokii::Logger.debug "Initializing"
-      # More setup code here
+      Lokii::Logger.debug "Waiting for text messages"
+      self.setup_database
+      self.setup_handlers
     end
     
     def self.process
-      return if self.stopped
-      self.setup unless self.running? 
-      self.started = true
-      Lokii::Logger.debug "Processing #{Time.now}"
-      # More processing code here
+      # Make sure it is not stopped and that we started it
+      return if self.stopped     
+      return unless self.running?
+      self.setup unless self.ready
+      if Lokii::Config.verbose
+        Lokii::Logger.debug ""
+        Lokii::Logger.debug "Processing #{Time.now}"
+      end  
+      self.check
     end
-    
-    def self.teardown
-      return unless self.running? 
-      self.stopped = true
-      File.delete(File.join(Lokii::Config.root, Lokii::Config.pid))
-      Lokii::Logger.debug "Closing connections"
-      # More teardown code here
-    end
-        
+            
     def self.running?
       File.exist?(File.join(Lokii::Config.root, Lokii::Config.pid))
     end
     
     def self.daemon?
       defined?(LOKII_DAEMON) && LOKII_DAEMON
-    end    
+    end  
+    
+    def self.say(text, number)
+      # TODO include not_before and not_after
+      Outbox.create(:text => text, :number => number)
+    end
+  
+  private
+    def self.setup_database
+      ActiveRecord::Base.establish_connection(Lokii::Config.database[Lokii::Config.environment])
+      Inbox.establish_connection(Lokii::Config.sms[Lokii::Config.environment])
+      Outbox.establish_connection(Lokii::Config.sms[Lokii::Config.environment])
+      MultipartInbox.establish_connection(Lokii::Config.sms[Lokii::Config.environment])    
+    end   
+    
+    def self.setup_handlers
+    end
+    
+    def self.check
+      Lokii::Logger.debug "Checking for incoming messages" if Lokii::Config.verbose
+      messages = Inbox.find(:all, :conditions => "processed = 0")
+      messages.each {|message|
+        self.handle(message)    
+      }      
+    end
+    
+    def self.handle(message)
+      message = message
+      worker = Worker.active.find(:first, :conditions => {:number => message.number})
+      return unless worker
+      Lokii::Logger.debug ""
+      Lokii::Logger.debug "Handling message\n#{message.to_yaml}"
+      self.handlers.each {|handler|
+        handler.handle(message, worker)
+        break if message.processed > 0
+      }
+      self.complete(message) unless message.processed?
+    end
+    
+    def self.complete(message)
+      Lokii::Logger.debug "Message processing complete"
+      message.processed = 1
+      message.save!
+    end
   end
 end

@@ -1,0 +1,3 @@
+script/console
+> Lokii::Server.setup
+> Worker.create(:number => '+1951NNNNNNN')

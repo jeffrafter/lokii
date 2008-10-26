@@ -1,13 +1,12 @@
 module Lokii
   class Config
     
-    cattr_accessor :environment, :configuration, :smsd, :database
+    cattr_accessor :configuration, :sms, :database
 
     def self.setup(options = {})
       load_config(options)
       load_application
       setup_defaults
-      setup_database
     end
     
     def self.root
@@ -15,7 +14,7 @@ module Lokii
     end
 
     def self.environment
-      (defined?(LOKII_ENV) ? LOKII_ENV : "development").to_sym
+      (defined?(LOKII_ENV) ? LOKII_ENV : ENV['LOKII_ENV'] || "development").to_sym
     end
 
     def self.[](key)
@@ -36,12 +35,11 @@ module Lokii
   private
   
     def self.load_config(options = {})
-      self.environment = LOKII_ENV || "development"
       self.configuration = {}
       self.database = YAML.load_file(File.join(self.root, 'config', 'database.yml'))
-      self.smsd = YAML.load_file(File.join(self.root, 'config', 'smsd.yml'))
+      self.sms = YAML.load_file(File.join(self.root, 'config', 'sms.yml'))
       self.database.symbolize_keys!
-      self.smsd.symbolize_keys!
+      self.sms.symbolize_keys!
 
       settings_yaml = YAML.load_file(File.join(self.root, 'config', 'settings.yml'))
       settings_yaml.symbolize_keys!
@@ -72,13 +70,6 @@ module Lokii
       end
     end
           
-    def self.setup_database
-      ActiveRecord::Base.establish_connection(self.database[self.environment])
-      Inbox.establish_connection(self.database[:smsd])
-      Outbox.establish_connection(self.database[:smsd])
-      MultipartInbox.establish_connection(self.database[:smsd])
-    end
-  
     def self.setup_defaults
       Lokii::Logger.setup
     end

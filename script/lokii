@@ -21,6 +21,5 @@ options = {
 #:monitor => true
 
 require 'lokii'
-Daemons.run(File.join(LOKII_ROOT, 'lib', 'process.rb'), options)
 
-Lokii::Server.teardown
+Daemons.run(File.join(LOKII_ROOT, 'lib', 'process.rb'), options)

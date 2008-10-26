@@ -11,6 +11,16 @@ end
 
 require 'lokii'
 
+# Check if it is already running
+if Lokii::Server.running?
+  Lokii::Logger.err "Already running, aborting"
+  exit
+end
+
+File.open(File.join(Lokii::Config.root, Lokii::Config.pid), 'w') do |pid|
+  pid.write(Process.pid)
+end  
+
 trap "SIGINT" do
   Lokii::Logger.debug "Interuppted"
   exit
@@ -19,5 +29,5 @@ end
 begin
   require 'process'
 ensure
-  Lokii::Server.teardown
-end
+  FileUtils.rm(File.join(Lokii::Config.root, Lokii::Config.pid), :force => true)
+end  

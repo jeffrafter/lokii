@@ -1,0 +1,10 @@
+#!/bin/bash
+smsd \
+  --module mysql \
+  --db smsd \
+  --user smsd \
+  --password smsd \
+  --host localhost \
+  --logfile `dirname $0`/../log/smsd.log \
+  --interval 1 \
+  --inbox MT
