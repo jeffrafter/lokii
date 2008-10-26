@@ -1,0 +1,6 @@
+development:
+  interval: 1
+  verbose: false
+  log: log/development.log
+  err: log/development.err
+  pid: tmp/pids/lokii.pid

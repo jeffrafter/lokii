@@ -39,9 +39,9 @@ module Lokii
   private
     def self.setup_database
       ActiveRecord::Base.establish_connection(Lokii::Config.database[Lokii::Config.environment])
-      Inbox.establish_connection(Lokii::Config.sms[Lokii::Config.environment])
-      Outbox.establish_connection(Lokii::Config.sms[Lokii::Config.environment])
-      MultipartInbox.establish_connection(Lokii::Config.sms[Lokii::Config.environment])    
+      Inbox.establish_connection(Lokii::Config.smsd[Lokii::Config.environment])
+      Outbox.establish_connection(Lokii::Config.smsd[Lokii::Config.environment])
+      MultipartInbox.establish_connection(Lokii::Config.smsd[Lokii::Config.environment])    
     end   
     
     def self.setup_handlers

@@ -37,9 +37,9 @@ module Lokii
     def self.load_config(options = {})
       self.configuration = {}
       self.database = YAML.load_file(File.join(self.root, 'config', 'database.yml'))
-      self.sms = YAML.load_file(File.join(self.root, 'config', 'sms.yml'))
+      self.smsd = YAML.load_file(File.join(self.root, 'config', 'sms.yml'))
       self.database.symbolize_keys!
-      self.sms.symbolize_keys!
+      self.smsd.symbolize_keys!
 
       settings_yaml = YAML.load_file(File.join(self.root, 'config', 'settings.yml'))
       settings_yaml.symbolize_keys!
