@@ -1,0 +1,127 @@
+h1. Lokii
+
+Lokii is a simple framework for handling SMS queues on a local computer. 
+It does not communicate with your phone or send SMS messages through the 
+internet by default. Instead, you are expected to use gnokii and smsd (or
+some other phone interface) to interact with a cell phone and populate the
+queue. This may change in the future as Ruby bindings for gnokii are currently
+in development.
+
+h2. Setup
+
+Cloning the repository (or downloading th tarball) should get you most of the
+way. You are going to need to install Ruby, the daemons gem and you will 
+currently need Active Record and Active Support for the database interaction.
+Once you have these requirements you will need to setup the databases:
+
+  mysql -u root
+  > CREATE DATABASE lokii_develoment;
+  > CREATE DATABASE lokii_test;
+  > CREATE DATABASE smsd;
+  > GRANT SELECT, INSERT, UPDATE, DELETE ON smsd.* TO 'smsd'@'localhost' IDENTIFIED BY 'smsd';
+  
+Then you will need to copy and update the example configuration files to your
+particular setup:
+
+  cp config/database.example.yml config/database.yml
+  cp config/settings.example.yml config/settings.yml
+  cp config/smsd.example.yml config/smsd.yml
+  
+Before the framework will process any messages, you'll need to add some 
+workers. Essentially, each number you expect to receive a SMS from should
+have a corresponding Worker:
+
+  script/console
+  > Lokii::Server.setup
+  > Worker.create(:number => '+1951NNNNNNN')
+
+h2. Scripts
+
+Lokii comes with several scripts, +lokii+, +run+, +console+ and +smsd+. The console 
+script is a simple wrapper around irb and is nice for interacting on the 
+command line. It loads the main Lokii library (and all of the corresponding
+application files), but if you want to interact with the database or the server
+you will need run +Lokii::Server.setup+ inside the console.
+
+The +run+ script allows you to actually start the processing loop of Lokii.
+It will initialize, and check every +interval+ seconds (default is 1) for 
+new SMS messages. All of the output is sent to STDOUT as well as the log
+(which by default is log/development.log).
+
+The +lokii+ script allows you to run Lokii in daemon mode:
+
+  script/daemon [start|stop|restart]
+  
+It only allows a single instance of the application to run at a time. Log
+information is sent to log/development.log and tmp/pids/lokii.output (which
+is used primarily for daemon debugging).
+
+The +smsd+ script is simply a shortcut to invoke the SMS daemon that is part 
+of gnokii. For more information on installing gnokii and the sms daemon go 
+to http://neverlet.be/2008/10/22/phone-meet-computer.
+
+h2. Writing Handlers
+
+Writing handlers is currently very simple. Simply create the file in the 
+app/handlers folder and implement the +process+ method:
+
+  class ILoveYouHandler < Lokii::Handler
+    def process
+      Lokii::Logger.debug "Processing message with the I love you handler"
+      reply "I love you too" if message.text.downcase == "i love you" || message.text.downcase == "i love u" 
+    end
+  end
+
+This is the most basic kind of handler that will respond to speicifc commands 
+or requests with a reply. In order for Lokii to recognize this handler you have
+to register it. Currently this is just a modification to the lib/lokii.rb file:
+
+  Lokii::Server.handlers ||= [ PongHandler.new, ILoveYouHandler.new ]
+
+The handlers will be called for each message in the order you list them. If you
+want to halt the processing of a message that has already been handled, simply
+call the +complete+ method.
+
+h2. Modifying the Server
+
+The server is currently a polling based server that checks for new messages in
+the inbox table of the specified smsd database. Replies are simple messages 
+added to the outbox. Message completion is nothing more than marking the 
+processed flag and re-saving the record.
+
+    def self.say(text, number)
+      Outbox.create(:text => text, :number => number)
+    end
+    
+    def self.complete(message)
+      Lokii::Logger.debug "Message processing complete"
+      message.processed = 1
+      message.save!
+    end    
+  
+    def self.check
+      Lokii::Logger.debug "Checking for incoming messages" if Lokii::Config.verbose
+      messages = Inbox.find(:all, :conditions => "processed = 0")
+      messages.each {|message|
+        self.handle(message)    
+      }      
+    end
+
+Modifying these three methods (and possibly the setup method) you could easily
+convert the server to use a file based queue. This would allow you to use
+the smsd file module or any other program (such as FrontlineSMS) in file 
+mode and still use Lokii to do the processing/handling of messages.
+
+h2. Background
+
+Lokii was written to allow someone to quickly build SMS forms using an open 
+toolkit. Ideally this project will be used for developing world healthcare,
+banking, commerce applications. 
+
+h3. Thanks
+
+Thanks to Darcy Laycock (sutto) as much of this is based on his work on Marvin.
+Thanks also to the gnokii guys Daniele Forsi (dforsi) and Paweł Kot (oftokpik).
+Thanks to Josh Nesbit and Ken Banks for their SMS work in Malawi.
+
+
