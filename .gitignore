@@ -2,3 +2,4 @@ config/database.yml
 config/smsd.yml
 config/settings.yml
 .DS_Store
+notes
