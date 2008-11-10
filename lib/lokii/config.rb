@@ -1,12 +1,13 @@
 module Lokii
   class Config
     
-    cattr_accessor :configuration, :sms, :database
+    cattr_accessor :configuration, :database
 
     def self.setup(options = {})
       load_config(options)
       load_application
       setup_defaults
+      setup_database
     end
     
     def self.root
@@ -37,9 +38,7 @@ module Lokii
     def self.load_config(options = {})
       self.configuration = {}
       self.database = YAML.load_file(File.join(self.root, 'config', 'database.yml'))
-      self.smsd = YAML.load_file(File.join(self.root, 'config', 'sms.yml'))
       self.database.symbolize_keys!
-      self.smsd.symbolize_keys!
 
       settings_yaml = YAML.load_file(File.join(self.root, 'config', 'settings.yml'))
       settings_yaml.symbolize_keys!
@@ -72,6 +71,12 @@ module Lokii
           
     def self.setup_defaults
       Lokii::Logger.setup
+    end
+    
+    def self.setup_database
+      ActiveRecord::Base.establish_connection(Lokii::Config.database[Lokii::Config.environment])
+    rescue
+      # Do nothing
     end
     
   end

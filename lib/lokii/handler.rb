@@ -1,7 +1,7 @@
 module Lokii
   class Handler
 
-    attr_reader :message
+    attr_accessor :message
     
     def initialize
       @message = nil

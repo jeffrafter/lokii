@@ -1,14 +1,11 @@
 module Lokii
   class Server
     cattr_accessor :stopped, :ready, :handlers          
-          
+       
     def self.setup
       self.ready = true
-      Lokii::Logger.debug ""
       Lokii::Logger.debug "Initializing"
       Lokii::Logger.debug "Waiting for text messages"
-      self.setup_database
-      self.setup_handlers
     end
     
     def self.process
@@ -31,36 +28,28 @@ module Lokii
       defined?(LOKII_DAEMON) && LOKII_DAEMON
     end  
     
+    def self.connect
+      Lokii::Logger.debug "Connecting"
+    end      
+                
+    def self.disconnect
+      Lokii::Logger.debug "Disconnecting"
+    end      
+
     def self.say(text, number)
-      # TODO include not_before and not_after
-      Outbox.create(:text => text, :number => number)
+      Lokii::Logger.debug "Sending message to #{number}" 
     end
     
     def self.complete(message)
-      Lokii::Logger.debug "Message processing complete"
-      message.processed = 1
-      message.save!
+      Lokii::Logger.debug "Message processing complete" if Lokii::Config.verbose
     end    
   
     def self.check
       Lokii::Logger.debug "Checking for incoming messages" if Lokii::Config.verbose
-      messages = Inbox.find(:all, :conditions => "processed = 0")
-      messages.each {|message|
-        self.handle(message)    
-      }      
     end
     
   private
-    def self.setup_database
-      ActiveRecord::Base.establish_connection(Lokii::Config.database[Lokii::Config.environment])
-      Inbox.establish_connection(Lokii::Config.smsd[Lokii::Config.environment])
-      Outbox.establish_connection(Lokii::Config.smsd[Lokii::Config.environment])
-      MultipartInbox.establish_connection(Lokii::Config.smsd[Lokii::Config.environment])    
-    end   
-    
-    def self.setup_handlers      
-    end
-    
+
     def self.handle(message)
       message = message
       worker = Worker.active.find(:first, :conditions => {:number => message.number})

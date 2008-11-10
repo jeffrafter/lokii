@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-require 'daemons'
 
 LOKII_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 LOKII_ENV = ENV['LOKII_ENV'] || 'development'
@@ -27,7 +26,9 @@ trap "SIGINT" do
 end
 
 begin
+  Lokii::Server.connect
   require 'process'
 ensure
+  Lokii::Server.disconnect
   FileUtils.rm(File.join(Lokii::Config.root, Lokii::Config.pid), :force => true)
 end  

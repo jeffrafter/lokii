@@ -10,6 +10,23 @@ if File.exist?(File.join(LOKII_ROOT, 'lib', 'lokii.rb'))
   $:.unshift(File.join(LOKII_ROOT, 'lib'))
 end
 
+require 'lokii'
+
+if ARGV.empty?
+  "Usage: lokii [connect|disconnect|start|stop|restart]"
+  exit
+end
+
+if ARGV[0] == 'connect'
+  Lokii::Server.connect
+  exit
+end
+
+if ARGV[0] == 'disconnect'
+  Lokii::Server.disconnect
+  exit
+end
+
 options = {
   :multiple => false,
   :dir_mode => :normal,
@@ -19,7 +36,5 @@ options = {
   :app_name => 'lokii'
 }
 #:monitor => true
-
-require 'lokii'
 
 Daemons.run(File.join(LOKII_ROOT, 'lib', 'process.rb'), options)
