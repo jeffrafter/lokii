@@ -63,7 +63,9 @@ module Lokii
     end
     
     def self.load_application
-      app = Dir[File.join(self.root, 'app', '**', '*.rb')].map { |h| h[0..-4] }
+      app = Dir[File.join(self.root, 'app', 'handlers', '**', '*.rb')].map { |h| h[0..-4] }
+      app += Dir[File.join(self.root, 'app', 'servers', '**', '*.rb')].map { |h| h[0..-4] }
+      app += Dir[File.join(self.root, 'app', 'models', '**', '*.rb')].map { |h| h[0..-4] }
       app.each do |f|
         require f
       end
@@ -75,8 +77,37 @@ module Lokii
     
     def self.setup_database
       ActiveRecord::Base.establish_connection(Lokii::Config.database[Lokii::Config.environment])
-    rescue
-      # Do nothing
+
+      app = Dir[File.join('/var/www/bart/vendor/plugins/composite_primary_keys/lib', '**', '*.rb')].map { |h| h[0..-4] }
+      app.each do |f|
+        require f
+      end
+      require '/var/www/bart/vendor/plugins/composite_primary_keys/init.rb'
+      require '/var/www/lokii/app/bart/open_mrs.rb'
+      OpenMRS.establish_connection(Lokii::Config.database[:bart])  
+      
+      app = Dir[File.join(self.root, 'app', 'bart', '**', '*.rb')].map { |h| h[0..-4] }
+      app.each do |f|
+        require f
+      end
+
+      [ Drug,
+        DrugOrder,
+        Order,
+        Concept,
+        ConceptSet,
+        ConceptClass,
+        Observation,
+        Encounter,
+        EncounterType,
+        Person,
+        Patient,
+        PatientIdentifier,
+        PatientIdentifierType ].each {|klass|
+        klass.establish_connection(Lokii::Config.database[:bart])  
+      }
+    rescue Exception => e
+      puts "OHNOES! #{e.to_yaml}"
     end
     
   end

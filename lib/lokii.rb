@@ -10,4 +10,4 @@ require 'lokii/handler'
 Lokii::Config.setup
 Lokii::Server.stopped = false
 Lokii::Server.ready = false
-Lokii::Server.handlers ||= [ PongHandler.new, ILoveYouHandler.new ]    
+Lokii::Server.handlers ||= [ ILoveYouHandler.new, BinHandler.new ]    
