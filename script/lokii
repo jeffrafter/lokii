@@ -1,10 +1,8 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-require 'daemons'
 
 LOKII_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 LOKII_ENV = ENV['LOKII_ENV'] || 'development'
-LOKII_DAEMON = true
 
 if File.exist?(File.join(LOKII_ROOT, 'lib', 'lokii.rb'))
   $:.unshift(File.join(LOKII_ROOT, 'lib'))
@@ -12,29 +10,25 @@ end
 
 require 'lokii'
 
-if ARGV.empty?
-  "Usage: lokii [connect|disconnect|start|stop|restart]"
+# Check if it is already running
+if Lokii::Server.running?
+  Lokii::Logger.err "Already running, aborting"
   exit
 end
 
-if ARGV[0] == 'connect'
+File.open(File.join(Lokii::Config.root, Lokii::Config.pid), 'w') do |pid|
+  pid.write(Process.pid)
+end  
+
+trap "SIGINT" do
+  Lokii::Logger.debug "Interuppted"
+  exit
+end
+
+begin
   Lokii::Server.connect
-  exit
-end
-
-if ARGV[0] == 'disconnect'
+  require 'process'
+ensure
   Lokii::Server.disconnect
-  exit
-end
-
-options = {
-  :multiple => false,
-  :dir_mode => :normal,
-  :dir => File.join(LOKII_ROOT, 'tmp', 'pids'),
-  :backtrace => true,
-  :log_output => true,
-  :app_name => 'lokii'
-}
-#:monitor => true
-
-Daemons.run(File.join(LOKII_ROOT, 'lib', 'process.rb'), options)
+  FileUtils.rm(File.join(Lokii::Config.root, Lokii::Config.pid), :force => true)
+end  

@@ -1,0 +1,88 @@
+#!/usr/bin/env ruby
+require 'rubygems'
+require 'fileutils'
+
+LOCATION_ROOT = File.join(File.dirname(__FILE__), "..")
+DEST = ARGV[1] || "./lokii"
+
+def j(*args); File.join(*args); end
+
+def copy(f, t = nil)
+  t = f if t.nil?
+  File.open(j(DEST, t), "w+") do |file|
+    file.puts File.read(j(LOCATION_ROOT, f))
+  end
+end
+
+def usage
+  puts "Usage:" 
+  puts ""
+  puts "  lokii create [name] - Creates a lokii directory at name or ./lokii"
+  puts "  lokii (in a <lokii> dir) - Starts the application, equiv. to script/lokii"
+  puts ""
+end
+
+puts "Lokii - A Ruby Short Message Service Framework"
+if ARGV.include?("-h") || ARGV.include?("--help")
+  usage
+  exit
+end
+
+if ARGV.length >= 1 && !["start", "stop", "run", "restart"].include?(ARGV[0])
+  if ARGV[0].to_s.downcase != "create"
+    puts "'#{ARGV[0]}' isn't a valid command. - Please use #{__FILE__} --help"
+    exit(1)
+  end
+  if File.exist?(DEST) && File.directory?(DEST)
+    puts "The folder '#{DEST}' already exists."
+    exit(1)
+  end
+  # Generate it.
+  FileUtils.mkdir(DEST)
+  ["log", "tmp", "config", "app", "script"].each do |folder|
+    FileUtils.mkdir(j(DEST, folder))
+  end
+
+  # PIDS
+  FileUtils.mkdir(j(DEST, 'tmp', 'pids'))
+  FileUtils.mkdir(j(DEST, 'app', 'handlers'))
+  FileUtils.mkdir(j(DEST, 'app', 'models'))
+  FileUtils.mkdir(j(DEST, 'app', 'servers'))
+  
+  puts "Writing Settings"
+  copy j("config", "settings.example.yml"), j("config", "settings.yml")
+  
+  puts "Writing Database Settings"
+  copy j("config", "database.example.yml"), j("config", "database.yml")
+  
+  puts "Writing Initializer"
+  copy j("config", "init.rb")
+  
+  puts "Copying start scripts"
+  copy j("script", "console")
+  copy j("script", "daemon")
+  copy j("script", "lokii")
+  FileUtils.chmod 0755, j(DEST, "script", "console")
+  FileUtils.chmod 0755, j(DEST, "script", "daemon")
+  FileUtils.chmod 0755, j(DEST, "script", "lokii")
+  
+  puts "Copying example handlers"
+  copy j("lib", "lokii", "handlers", "ping_handler.rb"), j("app", "handlers", "ping_handler.rb")
+  copy j("lib", "lokii", "handlers", "i_love_you_handler.rb"), j("app", "handlers", "i_love_you_handler.rb")
+  
+  puts "Done"
+elsif ARGV.length >= 1
+  if !File.exist?(j("script", "daemon"))
+    puts "This isn't a lokii directory."
+    usage
+    exit(1)
+  end
+  exec "ruby ./script/daemon #{ARGV.map {|a| a.include?(" ") ? "\"#{a}\"" : a }.join(" ")}"
+else
+  if !File.exist?(j("script", "lokii"))
+    puts "This isn't a lokii directory."
+    usage
+    exit(1)
+  end
+  exec "ruby ./script/lokii"
+end

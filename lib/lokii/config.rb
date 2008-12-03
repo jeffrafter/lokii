@@ -5,6 +5,7 @@ module Lokii
 
     def self.setup(options = {})
       load_config(options)
+      load_defaults
       load_application
       setup_defaults
       setup_database
@@ -39,33 +40,17 @@ module Lokii
       self.configuration = {}
       self.database = YAML.load_file(File.join(self.root, 'config', 'database.yml'))
       self.database.symbolize_keys!
-
       settings_yaml = YAML.load_file(File.join(self.root, 'config', 'settings.yml'))
       settings_yaml.symbolize_keys!
       loaded_options = settings_yaml[self.environment].merge(options)
       self.configuration.merge!(loaded_options)
       self.configuration.symbolize_keys!
-      mod = Module.new do
-        Config.configuration.keys.each do |k|
-          define_method(k) do
-            return Config.configuration[k]
-          end
-        
-          define_method("#{k}=") do |val|
-            Config.configuration[k] = val
-          end
-        end
-      end
-      
-      # Extend and include.        
-      extend mod
-      include mod
-    end
-    
+      extend ConfigurationMapper
+      include ConfigurationMapper
+    end  
+
     def self.load_application
-      app = Dir[File.join(self.root, 'app', 'handlers', '**', '*.rb')].map { |h| h[0..-4] }
-      app += Dir[File.join(self.root, 'app', 'servers', '**', '*.rb')].map { |h| h[0..-4] }
-      app += Dir[File.join(self.root, 'app', 'models', '**', '*.rb')].map { |h| h[0..-4] }
+      app = Dir[File.join(self.root, 'app', '**', '*.rb')].map { |h| h[0..-4] }
       app.each do |f|
         require f
       end
@@ -77,37 +62,8 @@ module Lokii
     
     def self.setup_database
       ActiveRecord::Base.establish_connection(Lokii::Config.database[Lokii::Config.environment])
-
-      app = Dir[File.join('/var/www/bart/vendor/plugins/composite_primary_keys/lib', '**', '*.rb')].map { |h| h[0..-4] }
-      app.each do |f|
-        require f
-      end
-      require '/var/www/bart/vendor/plugins/composite_primary_keys/init.rb'
-      require '/var/www/lokii/app/bart/open_mrs.rb'
-      OpenMRS.establish_connection(Lokii::Config.database[:bart])  
-      
-      app = Dir[File.join(self.root, 'app', 'bart', '**', '*.rb')].map { |h| h[0..-4] }
-      app.each do |f|
-        require f
-      end
-
-      [ Drug,
-        DrugOrder,
-        Order,
-        Concept,
-        ConceptSet,
-        ConceptClass,
-        Observation,
-        Encounter,
-        EncounterType,
-        Person,
-        Patient,
-        PatientIdentifier,
-        PatientIdentifierType ].each {|klass|
-        klass.establish_connection(Lokii::Config.database[:bart])  
-      }
     rescue Exception => e
-      puts "OHNOES! #{e.to_yaml}"
+      Lokii::Logger.error "Could not initialize the database #{e.to_yaml}"
     end
     
   end

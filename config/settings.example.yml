@@ -4,3 +4,10 @@ development:
   log: log/development.log
   err: log/development.err
   pid: tmp/pids/lokii.pid
+  
+test:
+  interval: 1
+  verbose: false
+  log: log/test.log
+  err: log/test.err
+  pid: tmp/pids/lokii_test.pid
