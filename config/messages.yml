@@ -1,0 +1,13 @@
+development:
+  adapter: mysql
+  database: smsd
+  username: smsd
+  password: smsd
+  host: localhost
+
+test:
+  adapter: mysql
+  database: smsd
+  username: smsd
+  password: smsd
+  host: localhost

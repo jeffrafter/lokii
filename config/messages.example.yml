@@ -1,0 +1,18 @@
+# Configuration file to maintain the inbox, outbox, and multipartinbox tables
+# in a separate database. This is useful if another program is controlling
+# the messaging database (such as gnokii/smsd). If your tables and the 
+# message tables are in the same database you do not need this file
+development:
+  adapter: mysql
+  database: smsd
+  username: smsd
+  password: smsd
+  host: localhost
+
+test:
+  adapter: mysql
+  database: smsd
+  username: smsd
+  password: smsd
+  host: localhost
+
