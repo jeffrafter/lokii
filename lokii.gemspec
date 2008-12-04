@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jeff Rafter"]
-  s.date = %q{2008-12-03}
+  s.date = %q{2008-12-04}
   s.default_executable = %q{lokii}
   s.description = %q{Lokii is a Ruby SMS framework for ultimate awesomeness and with configurable servers and handlers.}
   s.email = %q{jeff@socialrange.org}
