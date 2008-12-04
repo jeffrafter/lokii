@@ -4,11 +4,11 @@ require 'rubygems'
 LOKII_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 LOKII_ENV = ENV['LOKII_ENV'] || 'development'
 
-if File.exist?(File.join(LOKII_ROOT, 'lib', 'lokii.rb'))
-  $:.unshift(File.join(LOKII_ROOT, 'lib'))
+if File.exist?(File.join(LOKII_ROOT, 'config', 'init.rb'))
+  $:.unshift(File.join(LOKII_ROOT, 'config'))
 end
 
-require 'lokii'
+require 'init'
 
 # Check if it is already running
 if Lokii::Server.running?

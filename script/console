@@ -1,2 +1,2 @@
 #!/bin/sh
-irb -I `dirname $0`/../lib -r 'lokii'
+irb -I `dirname $0`/../config -r 'init'

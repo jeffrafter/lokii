@@ -6,11 +6,11 @@ LOKII_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 LOKII_ENV = ENV['LOKII_ENV'] || 'development'
 LOKII_DAEMON = true
 
-if File.exist?(File.join(LOKII_ROOT, 'lib', 'lokii.rb'))
-  $:.unshift(File.join(LOKII_ROOT, 'lib'))
+if File.exist?(File.join(LOKII_ROOT, 'config', 'init.rb'))
+  $:.unshift(File.join(LOKII_ROOT, 'config'))
 end
 
-require 'lokii'
+require 'init'
 
 if ARGV.empty?
   "Usage: lokii [connect|disconnect|start|stop|restart]"

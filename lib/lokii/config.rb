@@ -1,6 +1,5 @@
 module Lokii
-  class Config
-    
+  class Config    
     cattr_accessor :configuration, :database
 
     def self.setup(options = {})
@@ -45,8 +44,17 @@ module Lokii
       loaded_options = settings_yaml[self.environment].merge(options)
       self.configuration.merge!(loaded_options)
       self.configuration.symbolize_keys!
-      extend ConfigurationMapper
-      include ConfigurationMapper
+      class << eval
+        Config.configuration.keys.each do |k|
+          define_method(k) do
+            return Config.configuration[k]
+          end
+        
+          define_method("#{k}=") do |val|
+            Config.configuration[k] = val
+          end
+        end      
+      end
     end  
 
     def self.load_application
@@ -66,5 +74,5 @@ module Lokii
       Lokii::Logger.error "Could not initialize the database #{e.to_yaml}"
     end
     
-  end
+  end  
 end  
