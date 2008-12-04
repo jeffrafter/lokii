@@ -11,7 +11,7 @@ end
 require 'init'
 
 # Check if it is already running
-if Lokii::Server.running?
+if Lokii::Processor.running?
   Lokii::Logger.err "Already running, aborting"
   exit
 end
@@ -26,9 +26,9 @@ trap "SIGINT" do
 end
 
 begin
-  Lokii::Server.connect
+  Lokii::Processor.servers.each{|server| server.connect }  
   require 'process'
 ensure
-  Lokii::Server.disconnect
+  Lokii::Processor.servers.each{|server| server.disconnect }  
   FileUtils.rm(File.join(Lokii::Config.root, Lokii::Config.pid), :force => true)
 end  

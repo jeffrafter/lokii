@@ -1,76 +1,72 @@
 module Lokii
   class Server
-    cattr_accessor :stopped, :ready, :handlers          
+    attr_accessor :stopped, :ready, :handlers          
        
-    def self.ready?
-      defined?(@@ready) && @@ready
+    def ready?
+      defined?(@ready) && @ready
     end   
        
-    def self.stopped?
-      defined?(@@stopped) && @@stopped
+    def stopped?
+      defined?(@stopped) && @stopped
     end   
        
-    def self.setup
+    def setup
       self.ready = true
       Lokii::Logger.debug "Initializing"
       Lokii::Logger.debug "Waiting for text messages"
     end
     
-    def self.process
+    def process
       # Make sure it is not stopped and that we started it
-      return if self.stopped?     
-      return unless self.running?
-      self.setup unless self.ready?
-      if Lokii::Config.verbose
-        Lokii::Logger.debug ""
-        Lokii::Logger.debug "Processing #{Time.now}"
-      end  
-      self.check
+      return if stopped?     
+      return unless running?
+      setup unless ready?
+      check
     end
             
-    def self.running?
+    def running?
       File.exist?(File.join(Lokii::Config.root, Lokii::Config.pid))
     end
     
-    def self.daemon?
+    def daemon?
       defined?(LOKII_DAEMON) && LOKII_DAEMON
     end  
     
-    def self.connect
+    def connect
       Lokii::Logger.debug "Connecting"
     end      
                 
-    def self.disconnect
+    def disconnect
       Lokii::Logger.debug "Disconnecting"
     end      
 
-    def self.say(text, number, reply = nil)
+    def say(text, number, reply = nil)
       Lokii::Logger.debug "Sending message to #{number}" 
     end
     
-    def self.complete(message)
+    def complete(message)
       Lokii::Logger.debug "Message processing complete" if Lokii::Config.verbose
     end    
   
-    def self.check
+    def check
       Lokii::Logger.debug "Checking for incoming messages" if Lokii::Config.verbose
     end
     
   private
 
-    def self.handle(message)
+    def handle(message)
       message = message
       worker = Worker.active.find(:first, :conditions => {:number => message.number})
       return unless worker
       Lokii::Logger.debug ""
       Lokii::Logger.debug "Handling message\n#{message.to_yaml}"
       catch :halt do
-        self.handlers.each do |handler|
-          handler.handle(message, worker)
+        handlers.each {|handler|
+          handler.handle(message, worker, self)
           break if message.processed > 0
-        end
+        }
       end  
-      self.complete(message) unless message.processed?
+      complete(message) unless message.processed?
     end
     
   end

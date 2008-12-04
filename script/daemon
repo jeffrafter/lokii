@@ -18,13 +18,13 @@ if ARGV.empty?
 end
 
 if ARGV[0] == 'connect'
-  Lokii::Server.connect
-  exit
+  Lokii::Processor.servers.each{|server| server.connect }  
+  exit(0)
 end
 
 if ARGV[0] == 'disconnect'
-  Lokii::Server.disconnect
-  exit
+  Lokii::Processor.servers.each{|server| server.disconnect }  
+  exit(0)
 end
 
 options = {

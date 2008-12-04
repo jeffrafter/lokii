@@ -8,9 +8,13 @@ Lokii::Config.setup
 # (which can be used in conjunction with gnokii/smsd and others) or through 
 # a watched directory.
 require File.join('lokii', 'servers', 'database_server')
+Lokii::Processor.servers = Lokii::DatabaseServer.new
 
 # Once you have selected a server you need to register the appropriate handlers
-# By default a PingHandler and ILoveYouHandler are registered. Handlers are
+# By example a PingHandler and ILoveYouHandler are registered. Handlers are
 # ordered, when processing a message the server will give each handler an
-# opportunity to handle it in order (unless a handler issues a halt).
-Lokii::Server.handlers ||= [ PingHandler.new, ILoveYouHandler.new ]    
+# opportunity to handle it in order (unless a handler issues a halt). If you 
+# assign handlers to the processor, it will register the handlers with all
+# available servers. If you want more fine-grained control, register the 
+# handlers on the server instance itself.
+Lokii::Processor.handlers = PingHandler.new, ILoveYouHandler.new 

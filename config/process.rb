@@ -1,4 +1,4 @@
 loop do
-  Lokii::Server.process
+  Lokii::Processor.process
   sleep(Lokii::Config.interval)  
 end

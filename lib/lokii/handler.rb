@@ -1,29 +1,31 @@
 module Lokii
   class Handler
-    attr_accessor :message
-    
+    attr_accessor :message, :worker, :server
+        
     def initialize
       @message = nil
       @worker = nil
+      @server = nil
     end
 
-    def handle(message, worker)
+    def handle(message, worker, server)
       @message = message
       @worker = worker      
-      process unless @message.processed?
+      @server = server
+      process 
     end
       
     def process
-      raise NotImplementedError.new
+      raise NotImplementedError
     end
     
     def complete
-      Lokii::Server.complete(message)
+      @server.complete(message)
     end
 
     def reply(text)
       Lokii::Logger.debug "Sending reply to #{message.number}"
-      Lokii::Server.say(text, message.number, message.id)
+      @server.say(text, message.number, message.id)
     end
     
     def halt
