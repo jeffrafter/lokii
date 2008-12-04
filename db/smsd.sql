@@ -75,6 +75,7 @@ CREATE TABLE `outbox` (
   `dreport` tinyint(4) NOT NULL DEFAULT '0',
   `not_before` time NOT NULL DEFAULT '00:00:00',
   `not_after` time NOT NULL DEFAULT '23:59:59',
+  `reply` int(8) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 CREATE INDEX outbox_processed_idx ON outbox (processed);

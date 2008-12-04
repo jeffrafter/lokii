@@ -54,9 +54,13 @@ if ARGV.length >= 1 && !["start", "stop", "run", "restart"].include?(ARGV[0])
   
   puts "Writing Database Settings"
   copy j("config", "database.example.yml"), j("config", "database.yml")
+  copy j("config", "messages.example.yml"), j("config", "messages.yml")
   
   puts "Writing Initializer"
   copy j("config", "init.rb")
+  
+  puts "Writing Process"
+  copy j("config", "process.rb")
   
   puts "Copying start scripts"
   copy j("script", "console")

@@ -2,6 +2,14 @@ module Lokii
   class Server
     cattr_accessor :stopped, :ready, :handlers          
        
+    def self.ready?
+      defined?(@@ready) && @@ready
+    end   
+       
+    def self.stopped?
+      defined?(@@stopped) && @@stopped
+    end   
+       
     def self.setup
       self.ready = true
       Lokii::Logger.debug "Initializing"
@@ -10,9 +18,9 @@ module Lokii
     
     def self.process
       # Make sure it is not stopped and that we started it
-      return if self.stopped     
+      return if self.stopped?     
       return unless self.running?
-      self.setup unless self.ready
+      self.setup unless self.ready?
       if Lokii::Config.verbose
         Lokii::Logger.debug ""
         Lokii::Logger.debug "Processing #{Time.now}"
@@ -36,7 +44,7 @@ module Lokii
       Lokii::Logger.debug "Disconnecting"
     end      
 
-    def self.say(text, number)
+    def self.say(text, number, reply = nil)
       Lokii::Logger.debug "Sending message to #{number}" 
     end
     
@@ -56,10 +64,12 @@ module Lokii
       return unless worker
       Lokii::Logger.debug ""
       Lokii::Logger.debug "Handling message\n#{message.to_yaml}"
-      self.handlers.each {|handler|
-        handler.handle(message, worker)
-        break if message.processed > 0
-      }
+      catch :halt do
+        self.handlers.each do |handler|
+          handler.handle(message, worker)
+          break if message.processed > 0
+        end
+      end  
       self.complete(message) unless message.processed?
     end
     

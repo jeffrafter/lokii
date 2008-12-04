@@ -1,6 +1,5 @@
 module Lokii
   class Handler
-
     attr_accessor :message
     
     def initialize
@@ -24,8 +23,11 @@ module Lokii
 
     def reply(text)
       Lokii::Logger.debug "Sending reply to #{message.number}"
-      Lokii::Server.say(text, message.number)
+      Lokii::Server.say(text, message.number, message.id)
     end
     
+    def halt
+      throw :halt
+    end
   end
 end  

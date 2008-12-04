@@ -1,6 +1,6 @@
 module Lokii
   class Config    
-    cattr_accessor :configuration, :database
+    cattr_accessor :configuration, :settings, :database, :messages
 
     def self.setup(options = {})
       load_config(options)
@@ -38,13 +38,23 @@ module Lokii
     def self.load_config(options = {})
       self.configuration = {}
       self.database = YAML.load_file(File.join(self.root, 'config', 'database.yml'))
-      self.database.symbolize_keys!
-      settings_yaml = YAML.load_file(File.join(self.root, 'config', 'settings.yml'))
-      settings_yaml.symbolize_keys!
-      loaded_options = settings_yaml[self.environment].merge(options)
-      self.configuration.merge!(loaded_options)
+      self.messages = YAML.load_file(File.join(self.root, 'config', 'messages.yml')) rescue nil
+      self.settings = YAML.load_file(File.join(self.root, 'config', 'settings.yml')) 
+      self.load_settings(options)
+      self.map_config
+    end  
+    
+    def self.load_settings(options = {})
+      self.settings.symbolize_keys!
+      self.configuration.merge!(self.settings[self.environment].merge(options))
       self.configuration.symbolize_keys!
-      class << eval
+    end
+     
+    def self.map_config  
+      self.database.symbolize_keys!
+      self.messages.symbolize_keys! if self.messages
+      
+      mod = Module.new do
         Config.configuration.keys.each do |k|
           define_method(k) do
             return Config.configuration[k]
@@ -53,9 +63,17 @@ module Lokii
           define_method("#{k}=") do |val|
             Config.configuration[k] = val
           end
-        end      
+        end
       end
-    end  
+      
+      # Extend and include.
+      extend mod
+      include mod
+    end
+    
+    def self.load_defaults
+      require File.join('lokii', 'models', 'worker')
+    end
 
     def self.load_application
       app = Dir[File.join(self.root, 'app', '**', '*.rb')].map { |h| h[0..-4] }

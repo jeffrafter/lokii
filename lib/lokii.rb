@@ -1,7 +1,8 @@
 require 'rubygems'
 require 'active_record'
 require 'active_support'
-require 'lokii/logger'
-require 'lokii/config'
-require 'lokii/server'
-require 'lokii/handler'
+
+require File.join('lokii', 'logger')
+require File.join('lokii', 'config')
+require File.join('lokii', 'server')
+require File.join('lokii', 'handler')

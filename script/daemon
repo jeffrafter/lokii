@@ -37,4 +37,4 @@ options = {
 }
 #:monitor => true
 
-Daemons.run(File.join(LOKII_ROOT, 'lib', 'process.rb'), options)
+Daemons.run(File.join(LOKII_ROOT, 'config', 'process.rb'), options)
