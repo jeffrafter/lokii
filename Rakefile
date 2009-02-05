@@ -38,7 +38,7 @@ begin
     s.homepage    = "http://socialrange.org/"
     s.description = "Lokii is a Ruby SMS framework for ultimate awesomeness and with configurable servers and handlers."
     s.authors     = ["Jeff Rafter"]
-    s.files       = FileList["[A-Z]*.*", "{app,bin,examples,lib,script,templates}/**/*"] + ["config/boot.rb", "config/init.rb", "config/process.rb", "config/settings.example.yml", "config/database.example.yml", "config/messages.example.yml"]
+    s.files       = FileList["[A-Z]*.*", "{bin,lib,script,test}/**/*"] + ["config/boot.rb", "config/init.rb", "config/process.rb", "config/settings.example.yml", "config/database.example.yml", "config/messages.example.yml"]
     s.executables = "lokii"
   end
 rescue LoadError
