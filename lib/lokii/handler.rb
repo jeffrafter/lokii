@@ -1,16 +1,14 @@
 module Lokii
   class Handler
-    attr_accessor :message, :worker, :server
+    attr_accessor :message, :server
         
     def initialize
       @message = nil
-      @worker = nil
       @server = nil
     end
 
-    def handle(message, worker, server)
+    def handle(message, server)
       @message = message
-      @worker = worker      
       @server = server
       process 
     end
@@ -24,8 +22,8 @@ module Lokii
     end
 
     def reply(text)
-      Lokii::Logger.debug "Sending reply to #{message.number}"
-      @server.say(text, message.number, message.id)
+      Lokii::Logger.debug "Sending reply to #{message[:number]}"
+      @server.say(text, message[:number], message)
     end
     
     def halt

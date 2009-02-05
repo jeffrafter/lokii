@@ -1,14 +1,5 @@
 #!/usr/bin/env ruby
-require 'rubygems'
-
-LOKII_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
-LOKII_ENV = ENV['LOKII_ENV'] || 'development'
-
-if File.exist?(File.join(LOKII_ROOT, 'config', 'init.rb'))
-  $:.unshift(File.join(LOKII_ROOT, 'config'))
-end
-
-require 'init'
+require File.join(File.dirname(__FILE__), '..', 'config', 'boot')
 
 # Check if it is already running
 if Lokii::Processor.running?

@@ -1,14 +1,20 @@
+require 'rubygems'
 require 'lokii'
 
-Lokii::Config.setup
+# Only option currently is :database
+Lokii::Config.setup do |config|
+  config.options[:database] = false
+end
 
 # Lokii won't do anything unless a server is activated. By default it comes with
 # two servers: database_server and file_server. These are simple servers that
 # implement the checking, processing and saying, either through a database 
 # (which can be used in conjunction with gnokii/smsd and others) or through 
 # a watched directory.
-require File.join('lokii', 'servers', 'database_server')
-Lokii::Processor.servers = Lokii::DatabaseServer.new
+require 'lokii/servers/gsm_server'
+
+# Register the server with the processor
+Lokii::Processor.servers = Lokii::GsmServer.new
 
 # Once you have selected a server you need to register the appropriate handlers
 # By example a PingHandler and ILoveYouHandler are registered. Handlers are

@@ -54,19 +54,18 @@ module Lokii
     
   private
 
-    def handle(message)
-      message = message
-      worker = Worker.active.find(:first, :conditions => {:number => message.number})
-      return unless worker
-      Lokii::Logger.debug ""
-      Lokii::Logger.debug "Handling message\n#{message.to_yaml}"
+    def handle(message)        
+      Lokii::Logger.debug "\nHandling message"
+      Lokii::Logger.debug ":sender: #{message[:number]}"
+      Lokii::Logger.debug ":sent: #{message[:created_at]}"
+      Lokii::Logger.debug ":received: #{message[:processed_at]}"
+      Lokii::Logger.debug ":text: #{message[:text]}"
       catch :halt do
         handlers.each {|handler|
-          handler.handle(message, worker, self)
-          break if message.processed > 0
+          handler.handle(message, self)
         }
       end  
-      complete(message) unless message.processed?
+      complete(message) unless message[:processed]
     end
     
   end

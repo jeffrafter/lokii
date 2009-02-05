@@ -1,6 +1,6 @@
 class ILoveYouHandler < Lokii::Handler
   def process
     Lokii::Logger.debug "Processing message with the I love you handler"
-    reply "I love you too" and complete if message.text.downcase == "i love you" || message.text.downcase == "i love u" 
+    reply "I love you too" and complete if message[:text].downcase == "i love you" || message[:text].downcase == "i love u" 
   end
 end

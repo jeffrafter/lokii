@@ -1,16 +1,9 @@
 #!/usr/bin/env ruby
-require 'rubygems'
 require 'daemons'
 
-LOKII_ROOT = File.expand_path(File.join(File.dirname(__FILE__), '..'))
-LOKII_ENV = ENV['LOKII_ENV'] || 'development'
 LOKII_DAEMON = true
 
-if File.exist?(File.join(LOKII_ROOT, 'config', 'init.rb'))
-  $:.unshift(File.join(LOKII_ROOT, 'config'))
-end
-
-require 'init'
+require File.join(File.dirname(__FILE__), '..', 'config', 'boot'))
 
 if ARGV.empty?
   "Usage: lokii [connect|disconnect|start|stop|restart]"

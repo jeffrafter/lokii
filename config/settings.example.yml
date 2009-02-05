@@ -1,6 +1,7 @@
 development:
   interval: 1
   verbose: false
+  ports: /dev/cu.usbmodem1a21
   log: log/development.log
   err: log/development.err
   pid: tmp/pids/lokii.pid

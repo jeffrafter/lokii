@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-require 'rubygems'
 require 'fileutils'
 
 LOCATION_ROOT = File.join(File.dirname(__FILE__), "..")
@@ -15,6 +14,7 @@ def copy(f, t = nil)
 end
 
 def usage
+  puts ""
   puts "Usage:" 
   puts ""
   puts "  lokii create [name] - Creates a lokii directory at name or ./lokii"
@@ -39,15 +39,18 @@ if ARGV.length >= 1 && !["start", "stop", "run", "restart"].include?(ARGV[0])
   end
   # Generate it.
   FileUtils.mkdir(DEST)
-  ["log", "tmp", "config", "app", "script"].each do |folder|
+  ["log", "tmp", "config", "app", "script", "test"].each do |folder|
     FileUtils.mkdir(j(DEST, folder))
   end
 
-  # PIDS
+  # Folders
   FileUtils.mkdir(j(DEST, 'tmp', 'pids'))
   FileUtils.mkdir(j(DEST, 'app', 'handlers'))
   FileUtils.mkdir(j(DEST, 'app', 'models'))
   FileUtils.mkdir(j(DEST, 'app', 'servers'))
+  FileUtils.mkdir(j(DEST, 'test', 'handlers'))
+  FileUtils.mkdir(j(DEST, 'test', 'models'))
+  FileUtils.mkdir(j(DEST, 'test', 'servers'))
   
   puts "Writing Settings"
   copy j("config", "settings.example.yml"), j("config", "settings.yml")
@@ -56,11 +59,17 @@ if ARGV.length >= 1 && !["start", "stop", "run", "restart"].include?(ARGV[0])
   copy j("config", "database.example.yml"), j("config", "database.yml")
   copy j("config", "messages.example.yml"), j("config", "messages.yml")
   
+  puts "Writing Boot"
+  copy j("config", "boot.rb")  
+
   puts "Writing Initializer"
   copy j("config", "init.rb")
   
   puts "Writing Process"
   copy j("config", "process.rb")
+  
+  puts "Writing Rakefile"
+  copy j("templates", "Rakefile"), j("Rakefile")
   
   puts "Copying start scripts"
   copy j("script", "console")
@@ -71,10 +80,15 @@ if ARGV.length >= 1 && !["start", "stop", "run", "restart"].include?(ARGV[0])
   FileUtils.chmod 0755, j(DEST, "script", "lokii")
   
   puts "Copying example handlers"
-  copy j("lib", "lokii", "handlers", "ping_handler.rb"), j("app", "handlers", "ping_handler.rb")
-  copy j("lib", "lokii", "handlers", "i_love_you_handler.rb"), j("app", "handlers", "i_love_you_handler.rb")
-  
+  copy j("templates", "app", "handlers", "ping_handler.rb"), j("app", "handlers", "ping_handler.rb")
+  copy j("templates", "app", "handlers", "i_love_you_handler.rb"), j("app", "handlers", "i_love_you_handler.rb")
+
+  puts "Building test environment"
+  copy j("templates", "test", "test_helper.rb"), j("test", "test_helper.rb")
+  copy j("templates", "test", "handlers", "i_love_you_handler_test.rb"), j("test", "handlers", "i_love_you_handler_test.rb")  
+
   puts "Done"
+
 elsif ARGV.length >= 1
   if !File.exist?(j("script", "daemon"))
     puts "This isn't a lokii directory."
@@ -82,6 +96,7 @@ elsif ARGV.length >= 1
     exit(1)
   end
   exec "ruby ./script/daemon #{ARGV.map {|a| a.include?(" ") ? "\"#{a}\"" : a }.join(" ")}"
+
 else
   if !File.exist?(j("script", "lokii"))
     puts "This isn't a lokii directory."

@@ -11,10 +11,17 @@ module Lokii
   # sent to the specified log file (and not the console). You can configure the
   # output log file in +config/settings.yml+.   
   class Logger    
-    cattr_accessor :logger
-    
     class << self
-          
+      @@logger = nil 
+
+      def logger
+        @@logger
+      end
+      
+      def logger=(value)
+        @@logger = value
+      end
+                
       def method_missing(name, *args, &blk)
         self.setup  
         self.logger.send(name, *args, &blk)

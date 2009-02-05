@@ -1,9 +1,23 @@
+require 'yaml'
+
+class Hash
+  def symbolize_keys!
+    each do |k,v| 
+      sym = k.respond_to?(:to_sym) ? k.to_sym : k 
+      self[sym] = Hash === v ? v.symbolize_keys! : v 
+      delete(k) unless k == sym
+    end
+    self
+  end
+end
+
 module Lokii
   class Config    
-    cattr_accessor :configuration, :settings, :database, :messages
-
-    def self.setup(options = {})
-      load_config(options)
+    def self.setup(&block)
+      define_accessors :options, :configuration, :settings, :database, :messages
+      self.options = {}
+      block.call(self)
+      load_config
       load_defaults
       load_application
       setup_defaults
@@ -35,23 +49,23 @@ module Lokii
 
   private
   
-    def self.load_config(options = {})
+    def self.load_config
       self.configuration = {}
-      self.database = YAML.load_file(File.join(self.root, 'config', 'database.yml'))
+      self.database = YAML.load_file(File.join(self.root, 'config', 'database.yml')) rescue nil
       self.messages = YAML.load_file(File.join(self.root, 'config', 'messages.yml')) rescue nil
       self.settings = YAML.load_file(File.join(self.root, 'config', 'settings.yml')) 
-      self.load_settings(options)
+      self.load_settings
       self.map_config
     end  
     
-    def self.load_settings(options = {})
+    def self.load_settings
       self.settings.symbolize_keys!
-      self.configuration.merge!(self.settings[self.environment].merge(options))
+      self.configuration.merge!(self.settings[self.environment].merge(self.options))
       self.configuration.symbolize_keys!
     end
      
     def self.map_config  
-      self.database.symbolize_keys!
+      self.database.symbolize_keys! if self.database
       self.messages.symbolize_keys! if self.messages
       
       mod = Module.new do
@@ -72,7 +86,6 @@ module Lokii
     end
     
     def self.load_defaults
-      require File.join('lokii', 'models', 'worker')
     end
 
     def self.load_application
@@ -87,10 +100,18 @@ module Lokii
     end
     
     def self.setup_database
+      return unless self.options[:database]
+      require 'active_record'
       ActiveRecord::Base.establish_connection(Lokii::Config.database[Lokii::Config.environment])
     rescue Exception => e
       Lokii::Logger.error "Could not initialize the database #{e.to_yaml}"
     end
     
+    def self.define_accessors(*args) 
+      args.each {|attr|
+        class_eval("unless defined? @@#{attr}\n@@#{attr} = nil\nend\n\ndef self.#{attr}\n@@#{attr}\nend\n\ndef #{attr}\n@@#{attr}\nend\n", __FILE__, __LINE__)
+        class_eval("unless defined? @@#{attr}\n@@#{attr} = nil\nend\n\ndef self.#{attr}=(obj)\n@@#{attr} = obj\nend\n\ndef #{attr}=(obj)\n@@#{attr} = obj\nend\n", __FILE__, __LINE__)    
+      }
+    end
   end  
 end  
