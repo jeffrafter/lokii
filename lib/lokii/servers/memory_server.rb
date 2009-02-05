@@ -26,5 +26,12 @@ module Lokii
     def say(text, number, reply = nil)
       outbox << {:text => text, :number => number, :reply => reply}
     end
+    
+    def receive(text, number, sent)
+      inbox << {:text => text, 
+                :number => number, 
+                :created_at => sent, 
+                :processed_at => Time.now}
+    end
   end  
 end

@@ -1,6 +1,4 @@
 # Add your own tasks in files placed in tasks ending in .rake,
-require(File.join(File.dirname(__FILE__), 'config', 'boot'))
-
 require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'

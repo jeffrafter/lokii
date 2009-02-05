@@ -1,7 +1,5 @@
 GEM_NAME = 'lokii'
 
-require File.join(File.expand_path(File.dirname(__FILE__)), 'config', 'boot.rb')
-
 require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
