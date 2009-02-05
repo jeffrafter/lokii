@@ -69,7 +69,7 @@ if ARGV.length >= 1 && !["start", "stop", "run", "restart"].include?(ARGV[0])
   copy j("config", "process.rb")
   
   puts "Writing Rakefile"
-  copy j("templates", "Rakefile"), j("Rakefile")
+  copy j("Rakefile.example"), j("Rakefile")
   
   puts "Copying start scripts"
   copy j("script", "console")
@@ -79,13 +79,9 @@ if ARGV.length >= 1 && !["start", "stop", "run", "restart"].include?(ARGV[0])
   FileUtils.chmod 0755, j(DEST, "script", "daemon")
   FileUtils.chmod 0755, j(DEST, "script", "lokii")
   
-  puts "Copying example handlers"
-  copy j("templates", "app", "handlers", "ping_handler.rb"), j("app", "handlers", "ping_handler.rb")
-  copy j("templates", "app", "handlers", "i_love_you_handler.rb"), j("app", "handlers", "i_love_you_handler.rb")
-
   puts "Building test environment"
-  copy j("templates", "test", "test_helper.rb"), j("test", "test_helper.rb")
-  copy j("templates", "test", "handlers", "i_love_you_handler_test.rb"), j("test", "handlers", "i_love_you_handler_test.rb")  
+  copy j("test", "test_helper.example.rb"), j("test", "test_helper.rb")
+  copy j("test", "handlers", "i_love_you_handler_test.rb"), j("test", "handlers", "i_love_you_handler_test.rb")  
 
   puts "Done"
 
