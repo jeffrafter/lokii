@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require File.join(File.dirname(__FILE__), '..', 'config', 'init')
+require File.join(File.dirname(__FILE__), '..', 'config', 'boot')
 
 # Check if it is already running
 if Lokii::Processor.running?

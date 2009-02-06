@@ -3,7 +3,7 @@ require 'daemons'
 
 LOKII_DAEMON = true
 
-require File.join(File.dirname(__FILE__), '..', 'config', 'init'))
+require File.join(File.dirname(__FILE__), '..', 'config', 'boot')
 
 if ARGV.empty?
   "Usage: lokii [connect|disconnect|start|stop|restart]"

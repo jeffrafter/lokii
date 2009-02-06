@@ -5,10 +5,5 @@ require 'test/unit'
 require 'shoulda'
 require 'mocha'
 
-require 'lokii'
+require File.join(File.dirname(__FILE__), '..', 'config', 'boot')
 require 'lokii/test'
-require 'boot'
-
-Lokii::Config.setup do |config|
-  config.options[:database] = false
-end
