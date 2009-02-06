@@ -25,7 +25,7 @@ module Lokii
     end
     
     def self.root
-      defined?(LOKII_ROOT) ? LOKII_ROOT : File.expand_path(File.join(File.dirname(__FILE__), '..', '..'))
+      LOKII_ROOT
     end
 
     def self.environment

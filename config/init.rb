@@ -1,4 +1,5 @@
 require 'rubygems'
+require 'boot'
 require 'lokii'
 
 # Only option currently is :database
