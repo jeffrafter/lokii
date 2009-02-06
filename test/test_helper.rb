@@ -1,14 +1,14 @@
-LOKII_ENV = 'test' unless defined? LOKII_ENV
+ENV['LOKII_ENV'] = 'test'
 
-require File.join(File.expand_path(File.dirname(__FILE__)), '..', 'config', 'boot.rb')
+require 'rubygems'
 require 'test/unit'
 require 'shoulda'
+require 'mocha'
 
-class Test::Unit::TestCase
-  # self.use_transactional_fixtures = true
-  # self.use_instantiated_fixtures  = false
+require 'lokii'
+require 'lokii/test'
+require 'boot'
 
-  def message(text, number=nil)
-    Inbox.new(:text => text, :number => number)
-  end
+Lokii::Config.setup do |config|
+  config.options[:database] = false
 end

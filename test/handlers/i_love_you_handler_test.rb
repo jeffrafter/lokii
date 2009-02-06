@@ -1,16 +1,11 @@
 require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 class ILoveYouHandlerTest < Test::Unit::TestCase
-  context "Basic handling" do
-    setup do
-      @handler = ILoveYouHandler.new 
-      Lokii::Processor.handlers = @handler
-    end
-
+  running_server_with_handlers :i_love_you_handler do
     should "respond with messages of love" do
-      incoming "i love u"      
-      messages = outgoing.map {|m| m[:text] }
-      assert_includes messages, "i love u too"
+      receive 'i love u'
+      assert_response 'I love you too'
+      assert_response_to '+123456789'
     end
   end  
 end    

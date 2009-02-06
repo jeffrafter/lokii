@@ -80,8 +80,9 @@ if ARGV.length >= 1 && !["start", "stop", "run", "restart"].include?(ARGV[0])
   FileUtils.chmod 0755, j(DEST, "script", "lokii")
   
   puts "Building test environment"
-  copy j("test", "test_helper.example.rb"), j("test", "test_helper.rb")
+  copy j("test", "test_helper.rb"), j("test", "test_helper.rb")
   copy j("test", "handlers", "i_love_you_handler_test.rb"), j("test", "handlers", "i_love_you_handler_test.rb")  
+  copy j("test", "handlers", "ping_handler_test.rb"), j("test", "handlers", "ping_handler_test.rb")  
 
   puts "Done"
 

@@ -25,7 +25,7 @@ module Lokii
       def method_missing(name, *args, &blk)
         self.setup  
         self.logger.send(name, *args, &blk)
-        puts(*args) unless daemon?
+        puts(*args) unless daemon? || Lokii::Config.environment == :test
       end
 
       # The setup method is called for each execution. If the internal logger has
