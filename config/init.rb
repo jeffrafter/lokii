@@ -14,7 +14,7 @@ end
 require 'lokii/servers/gsm_server'
 
 # Register the server with the processor
-Lokii::Processor.servers = Lokii::GsmServer.new
+Lokii::Processor.servers = Lokii::GsmServer.new, RemoteServer.new
 
 # Once you have selected a server you need to register the appropriate handlers
 # By example a PingHandler and ILoveYouHandler are registered. Handlers are

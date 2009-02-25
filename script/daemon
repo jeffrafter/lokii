@@ -23,7 +23,7 @@ end
 options = {
   :multiple => false,
   :dir_mode => :normal,
-  :dir => File.join(LOKII_ROOT, 'tmp', 'pids'),
+  :dir => File.join(LOKII_ROOT, 'tmp', 'pids').gsub(File::SEPARATOR, File::ALT_SEPARATOR || File::SEPARATOR),
   :backtrace => true,
   :log_output => true,
   :app_name => 'lokii'

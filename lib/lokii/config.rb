@@ -103,6 +103,7 @@ module Lokii
       return unless self.options[:database]
       require 'active_record'
       ActiveRecord::Base.establish_connection(Lokii::Config.database[Lokii::Config.environment])
+      ActiveRecord::Base.logger = Lokii::Logger
     rescue Exception => e
       Lokii::Logger.error "Could not initialize the database #{e.to_yaml}"
     end

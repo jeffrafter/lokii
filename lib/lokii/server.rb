@@ -25,7 +25,7 @@ module Lokii
     end
             
     def running?
-      File.exist?(File.join(Lokii::Config.root, Lokii::Config.pid))
+      File.exist?(File.join(Lokii::Config.root, Lokii::Config.pid).gsub(File::SEPARATOR, File::ALT_SEPARATOR || File::SEPARATOR))
     end
     
     def daemon?

@@ -3,11 +3,11 @@ require File.join(File.dirname(__FILE__), '..', 'config', 'boot')
 
 # Check if it is already running
 if Lokii::Processor.running?
-  Lokii::Logger.err "Already running, aborting"
+  Lokii::Logger.debug "Already running, aborting"
   exit
 end
 
-File.open(File.join(Lokii::Config.root, Lokii::Config.pid), 'w') do |pid|
+File.open(File.join(Lokii::Config.root, Lokii::Config.pid).gsub(File::SEPARATOR, File::ALT_SEPARATOR || File::SEPARATOR), 'w') do |pid|
   pid.write(Process.pid)
 end  
 
@@ -21,5 +21,5 @@ begin
   require 'process'
 ensure
   Lokii::Processor.servers.each{|server| server.disconnect }  
-  FileUtils.rm(File.join(Lokii::Config.root, Lokii::Config.pid), :force => true)
+  FileUtils.rm(File.join(Lokii::Config.root, Lokii::Config.pid).gsub(File::SEPARATOR, File::ALT_SEPARATOR || File::SEPARATOR), :force => true)
 end  
