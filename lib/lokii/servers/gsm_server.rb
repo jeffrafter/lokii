@@ -16,6 +16,7 @@ module Lokii
       ports = Lokii::Config.ports.split(',') rescue []
       ports.each {|port| modems << Gsm::Modem.new(port) }
       modems = [Gsm::Modem.new] if modems.empty?
+      modems.each {|modem| modem.encoding = Lokii::Config.encoding.to_sym} if Lokii::Config.encoding
       @proxies = modems.map{|modem| Lokii::GsmProxy.new(modem) }
       @current = 0
     end      
