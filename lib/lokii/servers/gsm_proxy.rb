@@ -14,7 +14,6 @@ module Lokii
     def initialize(modem)
       @received = Array.new
       @modem = modem
-      @modem.receive(method(:incoming))
     end
 
     def incoming(message)
@@ -26,6 +25,7 @@ module Lokii
     end
     
     def messages
+      @modem.process(method(:incoming))
       current = @received.dup 
       @received.clear
       current.map {|m| 
