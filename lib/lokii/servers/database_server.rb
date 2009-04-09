@@ -7,11 +7,11 @@ module Lokii
     def check
       messages = Inbox.pending.find(:all)
       messages.each {|message|
-        handle {:phone => message.phone,
+        handle({:phone => message.phone,
                 :number => message.number,
                 :text => message.text,
                 :created_at => message.insertdate,
-                :processed_at => Time.now}
+                :processed_at => Time.now})
       }      
     end
 
