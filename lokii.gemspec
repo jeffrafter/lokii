@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{lokii}
-  s.version = "0.3.3"
+  s.version = "0.4.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Jeff Rafter"]
-  s.date = %q{2009-04-09}
+  s.date = %q{2009-04-13}
   s.default_executable = %q{lokii}
   s.description = %q{Lokii is a Ruby SMS framework for ultimate awesomeness and with configurable servers and handlers.}
   s.email = %q{jeff@socialrange.org}
