@@ -9,6 +9,7 @@ module Lokii
 
     def connect
       Lokii::Logger.debug "Connecting"
+      modems = []
       ports = Lokii::Config.ports.split(',') rescue []
       ports.each {|port| modems << Sms.new(port) }
       modems = [Sms.new] if modems.empty?
